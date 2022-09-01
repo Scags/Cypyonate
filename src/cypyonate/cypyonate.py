@@ -19,8 +19,8 @@ class colors(object):
 class Cypyonate(object):
 	def __init__(self):
 		p = argparse.ArgumentParser(prog="cypy", description="Command-line DLL injector")
-		p.add_argument("-i", "--inject", dest="injection", metavar="injection", help="Target process (ID or name) and payload")
-		p.add_argument("-p", "--payload", dest="payload", metavar="payload", help="Inject payload file path")
+		p.add_argument("-i", "--inject", dest="injection", metavar="injection", help="target process (ID or name)")
+		p.add_argument("-p", "--payload", dest="payload", metavar="payload", help="payload file path")
 #		p.add_argument("-v", "--version", dest="version", action="store_true", help="Print version and exit")
 #		p.add_argument("-l", "--list", dest="listprocs", action="store_true", help="List injectable processes")
 

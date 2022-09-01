@@ -18,7 +18,7 @@ Command-line DLL injector
 options:
   -h, --help            show this help message and exit
   -i injection, --inject injection
-                        Target process (ID or name) and payload
+                        target process (ID or name)
   -p payload, --payload payload
-                        Inject payload file path
+                        payload file path
 ```
