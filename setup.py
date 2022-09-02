@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setuptools.setup(
 	name="Cypyonate",
-	version="1.0.0.1",
+	version="1.0.1.2",
 	author="John Mascagni",
 	author_email="johnmascagni@gmail.com",
 	description="A command-line DLL injector built in Python",
