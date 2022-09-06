@@ -11,7 +11,7 @@ PS C:\Dev\Cypyonate> py .\setup.py install
 ```
 # Usage
 ```
-usage: cypy [-h] [-i injection] [-p payload]
+usage: cypy [-h] [-i injection] [-p payload] [-s] [-w duration] [-v]
 
 Command-line DLL injector
 
@@ -21,4 +21,8 @@ options:
                         target process (ID or name)
   -p payload, --payload payload
                         payload file path
+  -s, --shellcode       inject as shellcode
+  -w duration, --wait duration
+                        Duration of time to wait for thread to finish (in milliseconds, default 10000)
+  -v, --verbose         Verbosely print output
 ```
