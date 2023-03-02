@@ -1,14 +1,21 @@
 import setuptools
+import sys
 
 with open("README.md", "r", encoding="utf-8") as f:
 	long_description = f.read()
 
+# Separate commands for 32-bit and 64-bit
+if sys.maxsize > 2**32:
+	entrypoint = "cypy"
+else:
+	entrypoint = "cypy32"
+
 setuptools.setup(
 	name="Cypyonate",
-	version="1.0.1.2",
+	version="1.2.0.3",
 	author="John Mascagni",
 	author_email="johnmascagni@gmail.com",
-	description="A command-line DLL injector built in Python",
+	description="An extendable command-line injector built entirely in Python",
 	long_description=long_description,
 	long_description_content_type="text/markdown",
 	url="https://github.com/Scags/Cypyonate",
@@ -20,7 +27,7 @@ setuptools.setup(
 	{
 		'console_scripts':
 		[
-			'cypy = cypyonate.cypyonate:main'
+			f'{entrypoint} = cypyonate.cypyonate:main'
 		]
 	},
 	classifiers=
