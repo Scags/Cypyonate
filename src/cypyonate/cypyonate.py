@@ -42,9 +42,9 @@ class Cypyonate(object):
 		self.argparse.add_argument("-w", "--wait", dest="duration", metavar="duration", type=int, default=10000,
 		                           help="duration of time to wait for remote thread to finish in milliseconds, in applicable injection techniques")
 		self.argparse.add_argument(
-			"--install", dest="install", metavar="module", help="Install a module")
-		self.argparse.add_argument("--remove", dest="remove", metavar="module", help="Remove a module")
-		self.argparse.add_argument("--arch", dest="arch", action="store_true", help="View Cypyonate's current architecture")
+			"--install", dest="install", metavar="module", help="install a module")
+		self.argparse.add_argument("--remove", dest="remove", metavar="module", help="remove a module")
+		self.argparse.add_argument("--arch", dest="arch", action="store_true", help="view Cypyonate's current architecture")
 
 		for module in self._modules:
 			module.add_to_argparse(self.argparse)

@@ -161,6 +161,7 @@ class ManualMap(cypy.Module):
 				return
 			elif check == 0x505050:
 				cypy.printe("Shit happened man")
+				return
 
 			time.sleep(handler.check_time)
 

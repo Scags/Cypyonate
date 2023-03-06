@@ -9,7 +9,7 @@ from .. import cypyonate as cypy
 
 class Shellcode(cypy.Module):
 	def __init__(self):
-		super().__init__("Shellcode", ("shell", "shellcode"), "Shellcode injection")
+		super().__init__("Shellcode", ("shellcode", "shell"), "Shellcode injection")
 
 	def inject(self, handler: cypy.Cypyonate, target: str, payload: str, verbose: bool):
 		if not os.path.exists(payload):
