@@ -130,4 +130,4 @@ This is currently supported by the current forms:
 - Manual Map DLL Injection
 - Early Bird APC Shellcode Injection
 
-To perform a reflective injection, simply pass a base64 encoded string as the payload and add the **-r** argument.
+To perform a reflective injection, simply pass a base64 encoded string as the payload and add the `-r` argument.
