@@ -14,9 +14,9 @@ More methods can be added with relative ease. See [Adding Injection Methods](htt
 
 # Installation
 ### Requirements
-Latest tested with Python 3.11.0
+Latest tested with Python 3.11.0. **Requires** Python 3.10+.
 
-The following Python packages are required by Cypyonate and can be install with `pip install -r requirements.txt`
+The following Python packages are required by Cypyonate and can be install with `pip install -r requirements.txt` if installing manually:
 - pefile
 - pywin32
 - colorama
@@ -26,15 +26,16 @@ The following Python packages are required by Cypyonate and can be install with 
 ```
 PS C:\Dev> git clone https://github.com/Scags/Cypyonate.git
 PS C:\Dev> pip install .\Cypyonate\
-//OR
-PS C:\Dev> cd .\Cypyonate\
-PS C:\Dev\Cypyonate> py .\setup.py install
 ```
 
-### Installing Multiple Architectures
-Cypyonate cannot execute under a different architecture than what it was installed with. If you want to install Cypyonate for x86, you must download the x86 version of Python, then run `pip install` from that Python version.
+You can also install directly from [Pypi](https://pypi.org/project/Cypyonate/) with `pip install cypyonate`
 
-Cypyonate changes its command depending on the architecture of the Python installation that installs it. If running x64, the command is `cypy`. If running x86, the command is `cypy32`. Assure that your Python installation's `Scripts/` directory is added to your PATH.
+### Installing Multiple Architectures
+Cypyonate cannot execute properly under a different architecture than what it was installed with.
+
+If you want to install Cypyonate for x86, you must download the x86 version of Python, then run `pip install` from that Python version. After doing so, go to your Python installation's `Scripts/` folder and rename `cypy.exe` to something else like `cypy32.exe`. This should be found in `C:\Users\<you>\AppData\Local\Programs\Python\<python-version>\Scripts`.
+
+If you do *not* change the executeable name, then the most recently installed Python version (on your PATH) takes precedent and executes whenever you run the `cypy` command. Sadly, these are the rules for now because pyproject.toml's aren't capable of differentiating between architectures.
 # Usage
 ```
 usage: cypy [-h] [-i injection] [-p payload] [-v] [-f form] [-l]    
