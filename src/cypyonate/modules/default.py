@@ -9,7 +9,7 @@ from .. import cypyonate as cypy
 
 class DefaultInjector(cypy.Module):
 	def __init__(self):
-		super().__init__("Default", ("default", "loadlibrary"), "Basic loadlibrary injection")
+		super().__init__("Default", ("default", "loadlibrary"), "Basic LoadLibrary injection")
 
 	def inject(self, handler: cypy.Cypyonate, target: str, payload: str, verbose: bool):
 		is64 = cypy.is64bit()
@@ -17,26 +17,23 @@ class DefaultInjector(cypy.Module):
 		if not proc:
 			cypy.printe(f"Could not find process {target}")
 			return
+		
+		if handler.reflective:
+			cypy.printe("Reflective injection is not supported by this module")
+			return
 
-		# if (win32process.IsWow64Process(proc) and not is64) or (not win32process.IsWow64Process(proc) and is64):
-		# 	cypy.printe(
-		# 		f"Cannot inject into {target} because Cypyonate is running in {'32-bit' if is64 else '64-bit'} mode. Please execute Cypyonate in {'64-bit' if is64 else '32-bit'} mode.")
-		# 	return
-
-		abspath = os.path.abspath(payload)
-		b = abspath.encode() + b"\x00"
-		cypy.printv(f"Allocating DLL file at {abspath} ({len(b)} bytes)")
+		cypy.printv(f"Allocating ({len(payload)} bytes)")
 
 		mem = win32process.VirtualAllocEx(proc, 0, len(
-			b), win32con.MEM_COMMIT | win32con.MEM_RESERVE, win32con.PAGE_READWRITE)
+			payload), win32con.MEM_COMMIT | win32con.MEM_RESERVE, win32con.PAGE_READWRITE)
 
 		if not mem:
 			cypy.printe("Could not allocate memory")
 			return
 
-		cypy.printv(f"Allocated {len(b)} bytes at {mem:X}")
+		cypy.printv(f"Allocated {len(payload)} bytes at {mem:X}")
 
-		written = win32process.WriteProcessMemory(proc, mem, b)
+		written = win32process.WriteProcessMemory(proc, mem, payload)
 		if not written:
 			cypy.printe("Could not write to memory")
 			return
@@ -73,7 +70,7 @@ class DefaultInjector(cypy.Module):
 		win32api.CloseHandle(threadhandle)
 		win32api.CloseHandle(proc)
 
-		cypy.printc(f"Injected {payload} into {target}")
+		cypy.printc(f"Injected into {target}")
 
 
 DefaultInjector()

@@ -5,6 +5,9 @@ import win32com.client
 import os
 import importlib
 import inspect
+import sys
+import base64
+import pkg_resources
 
 from colorama import just_fix_windows_console
 
@@ -37,7 +40,7 @@ class Cypyonate(object):
 		self.argparse.add_argument("-i", "--inject", dest="target",
 		                           metavar="injection", help="target process (ID or name)")
 		self.argparse.add_argument(
-			"-p", "--payload", dest="payload", metavar="payload", help="payload file path")
+			"-p", "--payload", dest="payload", metavar="payload", help="payload file path (use '-' for stdin)")
 		self.argparse.add_argument("-v", "--verbose", dest="verbose",
 		                           action="store_true", help="verbosely print output")
 		self.argparse.add_argument("-f", "--form", dest="form", metavar="form",
@@ -49,7 +52,8 @@ class Cypyonate(object):
 		self.argparse.add_argument(
 			"--install", dest="install", metavar="module", help="install a module")
 		self.argparse.add_argument("--remove", dest="remove", metavar="module", help="remove a module")
-		self.argparse.add_argument("--arch", dest="arch", action="store_true", help="view Cypyonate's current architecture")
+		self.argparse.add_argument("-V", "--version", dest="version", action="store_true", help="view Cypyonate's current version and architecture")
+		self.argparse.add_argument("-r", "--reflective", dest="reflective", action="store_true", help="inject reflectively (only applicable to some injection forms)")
 
 		self._call("add_to_argparse", self.argparse)
 
@@ -64,8 +68,8 @@ class Cypyonate(object):
 			self._install_module()
 		elif args.remove:
 			self._remove_module()
-		elif args.arch:
-			self._print_arch()
+		elif args.version:
+			self._print_version()
 		elif args.target:
 			self._inject()
 		elif args.payload:
@@ -76,8 +80,12 @@ class Cypyonate(object):
 
 		self._call("run_post", self)
 
-	def _print_arch(self):
-		printc(f"Cypyonate is currently running in {'x64' if is64bit() else 'x86'} mode")
+	def _print_version(self):
+		try:
+			version = pkg_resources.get_distribution("cypyonate").version
+		except:
+			version = "unknown"
+		printc(f"Cypyonate ({'x64' if is64bit() else 'x86'}) V{version}")
 
 	def _remove_module(self):
 		# Try to remove by file name
@@ -171,7 +179,7 @@ class Cypyonate(object):
 			self.argparse.print_help()
 			printe("No payload specified (-p)")
 			return
-
+		
 		form = self.form
 		if not form:
 			form = "default"
@@ -182,14 +190,24 @@ class Cypyonate(object):
 			printe(f"Could not find injection form {form.lower()}")
 			return
 
-		# Make sure we are injecting a valid file
-		if not os.path.isfile(self.payload):
-			printe(f"Payload path {self.payload} is not a valid file")
-			return
+		payload = self.payload
+		if self.payload == "-":
+			payload = sys.stdin.read()
+
+		if self.reflective:
+			# If we are injecting reflectively, decode the payload
+			payload = base64.b64decode(payload)
+			with open("C:/dev/ddaasdasda.bin", "wb") as f:
+				f.write(payload)
+		else:
+			# Otherwise, make sure we are injecting a valid file
+			if not os.path.isfile(payload):
+				printe(f"Payload path {payload} is not a valid file")
+				return
 
 		# Run the module
-		printv(f"Injecting {self.payload} into {self.target}")
-		module.inject(self, self.target, self.payload, self.verbose)
+		printv(f"Injecting {self.payload if not self.reflective else 'reflectively'} into {self.target}")
+		module.inject(self, self.target, payload, self.verbose)
 
 	def _add_module(self, module):
 		self._modules.append(module)
@@ -199,6 +217,9 @@ class Cypyonate(object):
 				self._map[x.lower()] = module
 		else:
 			self._map[module.format.lower()] = module
+
+	def from_stdin(self):
+		return 
 
 
 CYPY = None

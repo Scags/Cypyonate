@@ -12,7 +12,7 @@ else:
 
 setuptools.setup(
 	name="Cypyonate",
-	version="1.2.0.3",
+	version="1.3.0.4",
 	author="John Mascagni",
 	author_email="johnmascagni@gmail.com",
 	description="An extendable command-line injector built entirely in Python",

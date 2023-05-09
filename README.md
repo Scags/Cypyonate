@@ -8,6 +8,7 @@ Cypyonate currently has 5 injection forms which can be selected with the `--form
 - Manual Map DLL Injection
 - Thread Hijack LoadLibrary Injection (Only seems to work ~90% of the time)
 - Early Bird APC Shellcode Injection
+- Early Bird APC DLL Injection
 
 More methods can be added with relative ease. See [Adding Injection Methods](https://github.com/Scags/cypyonate#adding-injection-methods).
 
@@ -31,58 +32,70 @@ PS C:\Dev\Cypyonate> py .\setup.py install
 ```
 
 ### Installing Multiple Architectures
-Cypyonate cannot execute under a different architecture than what it was installed with. If you want to install Cypyonate for another architecture (e.g. x86), you must download that version of Python, then run `pip install` from that Python version.
+Cypyonate cannot execute under a different architecture than what it was installed with. If you want to install Cypyonate for x86, you must download the x86 version of Python, then run `pip install` from that Python version.
 
 Cypyonate changes its command depending on the architecture of the Python installation that installs it. If running x64, the command is `cypy`. If running x86, the command is `cypy32`. Assure that your Python installation's `Scripts/` directory is added to your PATH.
 # Usage
 ```
-usage: cypy [-h] [-i injection] [-p payload] [-v] [-f form] [-l] [-w duration]
-            [--clear-header clear_header]
-            [--clear-unneeded-sections clear_unneeded_sections]
+usage: cypy [-h] [-i injection] [-p payload] [-v] [-f form] [-l]    
+            [-w duration] [--install module] [--remove module]
+            [-V] [-r] [--clear-header clear_header]
+            [--clear-unneeded-sections clear_unneeded_sections]     
             [--sehsupport sehsupport]
-            [--adjust-protections adjust_protections] [--fdwreason fdwReason]
-            [--lpvreserved lpvReserved] [--check-time check_time]
+            [--adjust-protections adjust_protections]
+            [--fdwreason fdwReason] [--lpvreserved lpvReserved]     
+            [--check-time check_time]
 
 Command-line injector
 
 options:
   -h, --help            show this help message and exit
   -i injection, --inject injection
-                        target process (ID or name) (default: None)
+                        target process (ID or name) (default:       
+                        None)
   -p payload, --payload payload
-                        payload file path (default: None)
-  -v, --verbose         Verbosely print output (default: False)
-  -f form, --form form  Form of injection (see --list) (default: default)
-  -l, --list            List available injection forms (default: False)
+                        payload file path (use '-' for stdin)       
+                        (default: None)
+  -v, --verbose         verbosely print output (default: False)     
+  -f form, --form form  form of injection (see --list) (default:    
+                        default)
+  -l, --list            list available injection forms (default:    
+                        False)
   -w duration, --wait duration
-                        Duration of time to wait for remote thread to finish
-                        in milliseconds, in applicable injection techniques
-                        (default: 10000)
+                        duration of time to wait for remote thread  
+                        to finish in milliseconds, in applicable    
+                        injection techniques (default: 10000)       
+  --install module      install a module (default: None)
+  --remove module       remove a module (default: None)
+  -V, --version         view Cypyonate's current version and        
+                        architecture (default: False)
+  -r, --reflective      inject reflectively (only applicable to     
+                        some injection forms) (default: False)      
 
-Manual Map:
-  Manual mapping injection
-
+manual mapping injection:
   --clear-header clear_header
-                        Don't clear the header of the payload after injection
-                        (default: 1)
+                        clear the header of the payload after       
+                        injection (default: True)
   --clear-unneeded-sections clear_unneeded_sections
-                        Don't clear unneeded sections for the target binary to
-                        run after injection (default: 1)
+                        clear unneeded sections for the target      
+                        binary to run after injection (default:     
+                        True)
   --sehsupport sehsupport
-                        If clearing unneeded sections, clear .pdata as well
-                        (default: 1)
+                        if clearing unneeded sections, clear        
+                        .pdata as well (default: True)
   --adjust-protections adjust_protections
-                        Don't adjust the protections of target binary after
-                        injection (default: 1)
+                        adjust the protections of target binary     
+                        after injection (default: True)
   --fdwreason fdwReason
-                        The fdwReason parameter to pass to DllMain (default:
-                        1)
+                        the fdwReason parameter to pass to DllMain  
+                        (default: 1)
   --lpvreserved lpvReserved
-                        The lpvReserved parameter to pass to DllMain (default:
-                        0)
+                        the lpvReserved parameter to pass to        
+                        DllMain (default: 0)
   --check-time check_time
-                        Time to wait between checks for shellcode to finish
-                        execution, if applicable (default: 1.0)
+                        time to wait between checks for shellcode   
+                        to finish execution, if applicable
+                        (default: 1.0)
 ```
 # Adding Injection Methods
 Create a new .py file, import the main cypyonate module, and create a class that inherits from cypyonate.Module. Overload the `inject()` function and implement your code.
@@ -106,3 +119,15 @@ class MyInjection(cypy.Module):
 ```
 
 To finalize adding your module, enter the command `cypy --install myfile.py`. This will copy the file to the project modules folder.
+
+# Reflective Injection
+*New with V1.3*
+
+Cypyonate is capable of performing reflective injections.
+
+This is currently supported by the current forms:
+- Shellcode Injection
+- Manual Map DLL Injection
+- Early Bird APC Shellcode Injection
+
+To perform a reflective injection, simply pass a base64 encoded string as the payload and add the **-r** argument.

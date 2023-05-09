@@ -12,24 +12,20 @@ class Shellcode(cypy.Module):
 		super().__init__("Shellcode", ("shellcode", "shell"), "Shellcode injection")
 
 	def inject(self, handler: cypy.Cypyonate, target: str, payload: str, verbose: bool):
-		if not os.path.exists(payload):
-			cypy.printe("Shellcode injection requires a valid path to a shellcode file")
-			return
-
-		with open(payload, "rb") as f:
-			b = f.read()
-			cypy.printv(f"Reading shellcode file {payload} ({len(b)} bytes)")
-
-		is64 = cypy.is64bit()
 		proc = cypy.get_process(target)
 		if not proc:
 			cypy.printe(f"Could not find process {target}")
 			return
 
-		# if (win32process.IsWow64Process(proc) and not is64) or (not win32process.IsWow64Process(proc) and is64):
-		# 	cypy.printe(
-		# 		f"Cannot inject into {target} because Cypyonate is running in {'32-bit' if is64 else '64-bit'} mode. Please execute Cypyonate in {'64-bit' if is64 else '32-bit'} mode.")
-		# 	return
+		b = payload
+		if not handler.reflective:
+			if not os.path.exists(payload):
+				cypy.printe("Shellcode injection requires a valid path to a shellcode file")
+				return
+
+			with open(payload, "rb") as f:
+				b = f.read()
+				cypy.printv(f"Reading shellcode file {payload} ({len(b)} bytes)")
 
 		mem = win32process.VirtualAllocEx(proc, 0, len(
 			b), win32con.MEM_COMMIT | win32con.MEM_RESERVE, win32con.PAGE_EXECUTE_READWRITE)
@@ -61,7 +57,7 @@ class Shellcode(cypy.Module):
 		win32api.CloseHandle(threadhandle)
 		win32api.CloseHandle(proc)
 
-		cypy.printc(f"Injected {payload} into {target} at {mem:X}")
+		cypy.printc(f"Injected into {target} at {mem:X}")
 
 
 Shellcode()

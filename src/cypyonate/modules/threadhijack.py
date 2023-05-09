@@ -187,7 +187,7 @@ class CONTEXT32(ctypes.Structure):
 class ThreadExecutionHijack(cypy.Module):
 	def __init__(self):
 		super().__init__("Thread Execution Hijack",
-                  ("threadhijack", "teh"), "Thread Execution Hijack")
+                  ("threadhijack", "teh"), "Thread Execution Hijack DLL injection")
 
 	def inject(self, handler: cypy.Cypyonate, target: str, payload: str, verbose: bool):
 		is64 = cypy.is64bit()
@@ -195,15 +195,10 @@ class ThreadExecutionHijack(cypy.Module):
 		if not proc:
 			cypy.printe(f"Could not find process {target}")
 			return
-
-		# if not is64:
-		# 	cypy.printe(f"{self.name} is only available in 64-bit mode for now.")
-		# 	return
-
-		# if (win32process.IsWow64Process(proc) and not is64) or (not win32process.IsWow64Process(proc) and is64):
-		# 	cypy.printe(
-		# 		f"Cannot inject into {target} because Cypyonate is running in {'64-bit' if is64 else '32-bit'} mode. Please execute Cypyonate in {'32-bit' if is64 else '64-bit'} mode.")
-		# 	return
+		
+		if handler.reflective:
+			cypy.printe("Reflective injection is not supported by this module")
+			return
 
 		if not proc:
 			cypy.printe(f"Could not find process {target}")
@@ -297,7 +292,7 @@ class ThreadExecutionHijack(cypy.Module):
 			if eip != -1:
 				# push eip
 				buffer = buffer[:eip+1] + ctx.Eip.to_bytes(4, "little") + buffer[eip+5:]
-		
+
 		cypy.printv("Generated shellcode")
 
 		mem = win32process.VirtualAllocEx(
@@ -331,9 +326,10 @@ class ThreadExecutionHijack(cypy.Module):
 ThreadExecutionHijack()
 
 if cypy.is64bit():
-	SHELLCODE = \
-            b"\x9C\x50\x51\x52\x53\x55\x56\x57\x41\x50\x41\x51\x41\x52\x41\x53\x41\x54\x41\x55\x41\x56\x41\x57\x48" +\
-          		b"\x83\xEC\x28\x48\x8d\x0d\x00\x00\x00\x00\x48\xB8\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xD0\x48\x83\xC4" +\
-            b"\x28\x41\x5F\x41\x5E\x41\x5D\x41\x5C\x41\x5B\x41\x5A\x41\x59\x41\x58\x5F\x5E\x5D\x5B\x5A\x59\x58\x9D"
+	SHELLCODE = b"\x9C\x50\x51\x52\x53\x55\x56\x57\x41\x50\x41\x51\x41\x52\x41\x53\x41\x54\x41\x55\x41\x56"+\
+	b"\x41\x57\x48\x83\xEC\x28\x48\x8d\x0d\x00\x00\x00\x00\x48\xB8\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xD0"+\
+	b"\x48\x83\xC4\x28\x41\x5F\x41\x5E\x41\x5D\x41\x5C\x41\x5B\x41\x5A\x41\x59\x41\x58\x5F\x5E\x5D\x5B\x5A"+\
+	b"\x59\x58\x9D\x50\x48\xB8\x37\x37\x37\x37\x37\x37\x37\x37\x48\x87\x04\x24\xC3"
+	# Jmp to rip is dynamic
 else:
 	SHELLCODE = b"\x60\x9C\x8D\x05\x00\x00\x00\x00\x50\xBB\x00\x00\x00\x00\xFF\xD3\x9D\x61\x68\x00\x00\x00\x00\xC3"
